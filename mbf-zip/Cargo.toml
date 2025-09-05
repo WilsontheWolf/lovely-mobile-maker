@@ -1,0 +1,23 @@
+[package]
+name = "mbf-zip"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+rsa = { version = "0.9.6", features = ["sha2"] }
+rasn = "0.15.3"
+rasn-pkix = "0.15.3"
+byteorder = "1.5.0"
+crc = "3.2.1"
+libflate = "2.1.0"
+pem = "3.0.4"
+anyhow = "1.0.86"
+wasm-bindgen-struct = "0.1.0"
+wasm-bindgen = "0.2.100"
+
+[target.wasm32-unknown-unknown.dependencies]
+getrandom_v2 = { version = "0.2", features = ["js"], package = "getrandom" }
+getrandom    = { version = "0.3", features = ["wasm_js"] }
