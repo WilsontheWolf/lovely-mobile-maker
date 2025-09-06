@@ -5,6 +5,11 @@
 body {
     max-width: 50em;
     margin: 0 auto;
+    background-image: url("../img/cat.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    min-height: 100vh;
 }
 
 textarea {
