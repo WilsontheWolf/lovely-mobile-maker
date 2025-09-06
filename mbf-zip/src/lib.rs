@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use byteorder::{ReadBytesExt, WriteBytesExt, LE};
 use crc::{Algorithm, Crc};
+use goblin::Object;
 use libflate::deflate;
 use rasn_pkix::Certificate;
 use rsa::{rand_core, RsaPrivateKey};
@@ -62,6 +63,30 @@ pub enum FileCompression {
     Deflate,
     Store,
     Unsupported(u16),
+}
+
+#[wasm_bindgen]
+pub fn pe_length(buf: &[u8]) -> u32 {
+    let pe = match Object::parse(buf).unwrap() {
+        Object::PE(pe) => pe,
+        _ => todo!(),
+    };
+
+    // Determine the size of the PE executable by taking the sum of the headers and sections.
+    let optional = pe.header.optional_header.unwrap().standard_fields;
+    let initial_offset = optional.size_of_code + optional.size_of_initialized_data + optional.size_of_uninitialized_data;
+
+    let mut cursor = Cursor::new(buf);
+    cursor.seek_relative(initial_offset as _).unwrap();
+
+    // Search for the zip header from here.
+    let start = cursor.position() as usize;
+    let pos = buf[start..]
+        .windows(2)
+        .position(|w| w == [0x50, 0x4B])
+        .map(|p| start + p)
+        .unwrap_or(0);
+    (pos as u32).into()
 }
 
 #[wasm_bindgen]

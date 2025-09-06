@@ -1,4 +1,4 @@
-import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2, delete_file } from "./pkg/mbf_zip.js";
+import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2, delete_file, pe_length } from "./pkg/mbf_zip.js";
 
 console.log("hi mom")
 const decoder = new TextDecoder();
@@ -49,8 +49,12 @@ function handleFile(event) {
 }
 
 function prepareGame(data) {
-    const zip = zip_open(data);
+    const zipOffset = pe_length(data);
+    const zipData = data.slice(zipOffset);
+
+    const zip = zip_open(zipData);
     const files = entry_names(zip);
+
     let isLove = false, isBalatro = false;
     for (const f of files) {
 	if (f === "main.lua") {
