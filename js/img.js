@@ -7,7 +7,7 @@ function urlToImg(url) {
     });
 }
 
-function imgToPNGOfSize(img, d) {
+function imgToPNGOfSize(img, d, round, fit) {
     const canvas = document.createElement("canvas");
     canvas.width = d;
     canvas.height = d;
@@ -15,7 +15,14 @@ function imgToPNGOfSize(img, d) {
 
     const iw = img.width;
     const ih = img.height;
-    if (ih > iw) { // Portrait
+    if (round) {
+	ctx.beginPath();
+	const r = d / 2;
+	ctx.arc(r, r, r, 0, Math.PI * 2, true);
+	ctx.closePath();
+	ctx.clip();
+    }
+    if (ih > iw !== fit) { // Portrait
 	const ratio = ih / iw;
 	const scale = ih / d;
 	ctx.drawImage(img, -(iw / scale - d) / 2, 0, d / ratio, d);
@@ -30,20 +37,20 @@ function imgToPNGOfSize(img, d) {
 
 const BASE64_MARKER = ';base64,';
 function convertDataURIToBinary(dataURI) {
-  const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
-  const base64 = dataURI.substring(base64Index);
-  const raw = window.atob(base64);
-  const rawLength = raw.length;
-  const array = new Uint8Array(new ArrayBuffer(rawLength));
+    const base64Index = dataURI.indexOf(BASE64_MARKER) + BASE64_MARKER.length;
+    const base64 = dataURI.substring(base64Index);
+    const raw = window.atob(base64);
+    const rawLength = raw.length;
+    const array = new Uint8Array(new ArrayBuffer(rawLength));
 
-  for(let i = 0; i < rawLength; i++) {
-    array[i] = raw.charCodeAt(i);
-  }
-  return array;
+    for(let i = 0; i < rawLength; i++) {
+	array[i] = raw.charCodeAt(i);
+    }
+    return array;
 }
 
 export {
     urlToImg,
     imgToPNGOfSize,
 }
-    
+
