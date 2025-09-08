@@ -1,13 +1,18 @@
-import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2, delete_file, pe_length } from "./pkg/mbf_zip.js";
+import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2, pe_length } from "../pkg/mbf_zip.js";
+import { urlToImg, imgToPNGOfSize } from "./img.js"
 
-console.log("hi mom")
-const decoder = new TextDecoder();
-const encoder = new TextEncoder();
 const wasmReady = init();
 let apkData;
 let cert;
 const status = document.getElementById("status");
 const status2 = document.getElementById("status2");
+const imgs = [
+    ["mdpi", 48],
+    ["hdpi", 72],
+    ["xhdpi", 96],
+    ["xxhdpi", 144],
+    ["xxxhdpi", 192],
+];
 
 function asyncTimeout(t) {
     return new Promise((res) => {
@@ -72,20 +77,20 @@ function prepareGame(data) {
 }
 
 function downloadURL(data, fileName) {
-  const a = document.createElement('a')
-  a.href = data
-  a.download = fileName
-  document.body.appendChild(a)
-  a.style.display = 'none'
-  a.click()
-  a.remove()
+    const a = document.createElement('a')
+    a.href = data
+    a.download = fileName
+    document.body.appendChild(a)
+    a.style.display = 'none'
+    a.click()
+    a.remove()
 }
 
 async function digestBuffer(data) {
-  const hash = new Uint8Array(await window.crypto.subtle.digest("SHA-256", data));
+    const hash = new Uint8Array(await window.crypto.subtle.digest("SHA-256", data));
     let binary = ''
     for (let i = 0; i < hash.byteLength; i++) {
-        binary += String.fromCharCode(hash[i])
+	binary += String.fromCharCode(hash[i])
     }
     return btoa(binary)
 }
@@ -141,6 +146,10 @@ async function beginProcess(loveData) {
     }
     console.timeEnd("Copying files");
     updateStatus2("");
+
+    // updateStatus("Patching image...");
+    // const img = await urlToImg("/test.png");
+    // imgs.forEach(([type, size]) => write_file(apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
 
     updateStatus("Signing game...");
     await asyncTimeout();
