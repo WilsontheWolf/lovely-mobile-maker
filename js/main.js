@@ -1,4 +1,4 @@
-import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2, pe_length } from "../pkg/mbf_zip.js";
+import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2 } from "../pkg/mbf_zip.js";
 import { urlToImg, imgToPNGOfSize } from "./img.js"
 
 const wasmReady = init();
@@ -54,10 +54,37 @@ function handleFile(event) {
 }
 
 function prepareGame(data) {
-    const zipOffset = pe_length(data);
-    const zipData = data.slice(zipOffset);
+    let zip
+    try {
+    zip = zip_open(data);
+    } catch(e) {
+	// Fused(?)
+	let cdOffset
+	for (let i = 0; i < data.length; i++) {
+	    if (data[i] === 0x50 && data[i + 1] === 0x4B && data[i + 2] === 0x01 && data[i + 3] === 0x02) {
+		cdOffset = i;
+		break
+	    }
+	}
+	if (cdOffset === null) throw e;
+	let givenOffset;
+	for (let i = cdOffset; i < data.length; i++) {
+	    if (data[i] === 0x50 && data[i + 1] === 0x4B && data[i + 2] === 0x05 && data[i + 3] === 0x06) {
+		const byte1 = data[i + 19];
+		const byte2 = data[i + 18];
+		const byte3 = data[i + 17];
+		const byte4 = data[i + 16];
 
-    const zip = zip_open(zipData);
+		const uint32 = ((byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4) >>> 0;
+		givenOffset = uint32;
+		break
+	    }
+	}
+	if (givenOffset === null) throw e;
+	const diff = cdOffset - givenOffset;
+	data = data.slice(diff)
+	zip = zip_open(data)
+    }
     const files = entry_names(zip);
 
     let isLove = false, isBalatro = false;
