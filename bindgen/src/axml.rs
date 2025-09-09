@@ -24,5 +24,6 @@ pub fn xml_to_axml(xml: String) -> Vec<u8> {
     let mut writer = AxmlWriter::new(&mut output);
 
     mbf_axml::xml_to_axml(&mut writer, &mut reader).expect("Failed to convert xml to axml.");
+    writer.finish().unwrap();
     output.into_inner().unwrap()
 }
