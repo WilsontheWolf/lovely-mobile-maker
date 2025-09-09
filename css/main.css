@@ -29,3 +29,26 @@ pre {
 :invalid {
     border: 2px solid red;
 }
+
+.step {
+    border: dashed;
+    border-radius: 1em;
+    background-color: #0000007F;
+    backdrop-filter: blur(2em);
+    padding: 1em;
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.step.collapsed * {
+    display: none;
+}
+
+.step :first-child { /* Heading */
+    margin-top: 0;
+    display: initial;
+}
+
+.status:empty {
+    display: none;
+}

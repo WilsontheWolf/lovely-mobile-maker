@@ -1,8 +1,9 @@
-import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2 } from "./pkg/mbf_zip.js";
+import init, { zip_open, zip_read_file, entry_names, write_file, zip_save_and_sign_v2 } from "./pkg/mbf_bindgen.js";
 import { urlToImg, imgToPNGOfSize } from "./img.js"
 import "./manifest.js"
+import "./steps.js"
 
-const wasmReady = init();
+// const wasmReady = init();
 let apkData;
 let cert;
 const status = document.getElementById("status");
@@ -175,9 +176,9 @@ async function beginProcess(loveData) {
     console.timeEnd("Copying files");
     updateStatus2("");
 
-    updateStatus("Patching image...");
-    const img = await urlToImg("/test.png");
-    imgs.forEach(([type, size]) => write_file(apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
+    // updateStatus("Patching image...");
+    // const img = await urlToImg("/test.png");
+    // imgs.forEach(([type, size]) => write_file(apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
 
     updateStatus("Signing game...");
     await asyncTimeout();

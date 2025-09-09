@@ -3,4 +3,7 @@ test.zip
 
 mbf-zip/target
 mbf-zip/pkg
-
+mbf-axml/target
+mbf-axml/pkg
+bindgen/target
+bindgen/pkg

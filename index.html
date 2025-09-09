@@ -4,19 +4,49 @@
 <head>
     <meta charset='utf-8'>
     <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Balatro Save Editor</title>
+    <title>Lovely Mobile Maker</title>
     <meta name='viewport' content='width=device-width, initial-scale=1'>
     <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
     <script src='js/main.js' type="module"></script>
 </head>
 
 <body>
-    <h1>Balatro Save Editor</h1>
+    <h1>Lovely Mobile Maker</h1>
     <input type="file" id="file" name="file" />
     <br>
     <button id="download" disabled>Download</button>
     <div id="status"></div>
     <div id="status2"></div>
+<!--
+    Ideas for steps:
+    - Colour and icons for status
+    - Colour for border/heading unique to each step
+    - One colour for step depending on if collapsed or not
+    - Completed steps get solid border
+    - Completed steps lose colour unless hovered
+-->
+    <div id="step1" class="step">
+        <h3>Step 1 - Name foes here</h3>
+        <p>gimme files</p>
+        <input type="file" id="gamefile" name="file" />
+    </div>
+    <div id="step2" class="step collapsed">
+        <h3>Step 2 - Name foes here</h3>
+    </div>
+    <div id="step3" class="step collapsed">
+        <h3>Step 3 - Name foes here</h3>
+        <p>gimme data</p>
+        <p><label>Name: </label><input id="name" type="text"></input></p>
+        <p><label>Icon: </label><input id="icon" type="file"></input></p>
+        <p><label>Bundle ID: </label><input id="bundle" required="true" pattern="[\w\.]+" type="text"></input></p>
+        <p><button id="ready">Ready</button></p>
+    </div>
+    <div id="step4" class="step collapsed">
+        <h3>Step 4 - Name foes here</h3>
+    </div>
+    <!-- <div id="step5" class="step collapsed"> -->
+    <!--     <h3>Step 5 - Name foes here</h3> -->
+    <!-- </div> -->
 </body>
 
 </html>

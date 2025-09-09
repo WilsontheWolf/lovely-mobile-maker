@@ -25,7 +25,6 @@ function modifyManifest(xml, newName, newBundle) {
 		.find(e => e.getAttribute("android:name") === permName); // For some reason I could not look for this attribut in the query selector.
 	    updateBundle(uPermission, "android:name", old, newBundle);
 	    const providers = Array.from(root.querySelectorAll("provider"));
-	    console.log(providers)
 	    providers.forEach(p => updateBundle(p, "android:authorities", old, newBundle));
 	}
     }
@@ -36,3 +35,6 @@ function updateBundle(element, attribute, oldBundle, newBundle) {
     element.setAttribute(attribute, element.getAttribute(attribute).replace(oldBundle, newBundle))
 }
 
+export {
+    modifyManifest,
+};
