@@ -1,0 +1,13 @@
+[package]
+name = "mbf-bindgen"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+mbf-zip = { path = "../mbf-zip", version = "*" }
+mbf-axml = { path = "../mbf-axml", version = "*" }
+
+wasm-bindgen = "0.2.100"

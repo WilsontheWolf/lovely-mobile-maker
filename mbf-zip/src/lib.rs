@@ -6,11 +6,7 @@ use libflate::deflate;
 use rasn_pkix::Certificate;
 use rsa::{rand_core, RsaPrivateKey};
 use std::{
-    collections::HashMap,
-    fs::File,
-    io::{BufReader, BufWriter, Cursor, Read, Seek, SeekFrom, Write},
-    path::Path,
-    vec,
+    collections::HashMap, fs::File, io::{BufReader, BufWriter, Cursor, Read, Seek, SeekFrom, Write}, path::Path, rc::Rc, vec
 };
 use wasm_bindgen::prelude::wasm_bindgen;
 
@@ -89,52 +85,6 @@ pub fn pe_length(buf: &[u8]) -> u32 {
     (pos as u32).into()
 }
 
-#[wasm_bindgen]
-pub fn zip_open(buf: &[u8]) -> Result<ZipFile, String> {
-    let cursor = Cursor::new(buf.to_vec());
-    ZipFile::open(cursor).map_err(|e| e.to_string())
-}
-
-#[wasm_bindgen]
-pub fn zip_read_file(zip: &mut ZipFile, name: &str) -> Vec<u8> {
-    zip.read_file(name).unwrap()
-}
-
-#[wasm_bindgen]
-pub fn zip_extract_file_to(zip: &mut ZipFile, name: &str, to: &str) {
-    zip.extract_file_to(name, to).unwrap();
-}
-
-#[wasm_bindgen]
-pub fn zip_save_and_sign_v2(mut zip: ZipFile, pem_data: &[u8]) -> Vec<u8> {
-    let (cert, priv_key) = signing::load_cert_and_priv_key(pem_data);
-    zip.save_and_sign_v2(&priv_key, &cert).unwrap();
-    zip.file.flush();
-    zip.file.into_inner()
-}
-
-#[wasm_bindgen]
-pub fn read_file_contents(zip: &mut ZipFile, name: &str) -> Vec<u8> {
-    let mut output = Vec::new();
-    zip.read_file_contents(name, &mut output).unwrap();
-    output
-}
-
-#[wasm_bindgen]
-pub fn entry_names(zip: &mut ZipFile) -> Vec<String> {
-    zip.iter_entry_names().map(String::from).collect()
-}
-
-#[wasm_bindgen]
-pub fn write_file(zip: &mut ZipFile, name: &str, contents: &[u8]) {
-    zip.write_file(name, &mut Cursor::new(contents), FileCompression::Deflate)
-        .unwrap();
-}
-
-#[wasm_bindgen]
-pub fn delete_file(zip: &mut ZipFile, name: &str) -> bool {
-    zip.delete_file(name)
-}
 
 #[wasm_bindgen]
 pub struct ZipFile {
@@ -564,6 +514,14 @@ impl ZipFile {
     // Deletes the file with the given name from the ZIP, if it existed.
     pub fn delete_file(&mut self, name: &str) -> bool {
         self.entries.remove(name).is_some()
+    }
+
+    pub fn flush(&mut self) {
+        self.file.flush().unwrap()
+    }
+
+    pub fn into_buffer(self) -> Vec<u8> {
+        self.file.into_inner()
     }
 
     /// Saves the ZIP central directory, while signing the APK with the V2 signature scheme.
