@@ -1,5 +1,8 @@
 import init, { zip_open, zip_read_file, entry_names, axml_to_xml, xml_to_axml, write_file, zip_save_and_sign_v2 } from "./pkg/mbf_bindgen.js";
 import { modifyManifest } from "./manifest.js";
+import { downloadBlob, nameToIdentity, asyncTimeout } from "./util.js";
+import { makeIconList, getImageForIcon, icons, qualities } from "./icon.js";
+import { imgToPNGOfSize } from "./img.js";
 
 const wasmReady = init();
 const liveSteps = [];
@@ -7,41 +10,12 @@ const sharedState = {};
 const decoder = new TextDecoder();
 const identityRegex = /t.identity\s*=\s*['"]([^'"]+)/;
 const nameRegex = /^(.+?)(?:\.[^.]+)?$/;
-const identityPreprocess = /[^\w\-\~\.\(\)\[\]]/g;
-const identityGet = /^[a-z0-9]+/;
 
 const baseID = "systems.shorty.lmm";
 const balatroPreset = {
     identity: "balatro",
     name: "Balatro",
 };
-
-function nameToIdentity(name) {
-    name = name.replaceAll(identityPreprocess, "").toLowerCase();
-    return name.match(identityGet)?.[0];
-}
-
-function downloadURL(data, fileName) {
-    const a = document.createElement('a')
-    a.href = data
-    a.download = fileName
-    document.body.appendChild(a)
-    a.style.display = 'none'
-    a.click()
-    a.remove()
-}
-
-const downloadBlob = (data, fileName, mimeType) => {
-    const blob = new Blob([data], {
-	type: mimeType
-    })
-
-    const url = window.URL.createObjectURL(blob)
-
-    downloadURL(url, fileName)
-
-    setTimeout(() => window.URL.revokeObjectURL(url), 1000)
-}
 
 class Step {
     constructor(element, index) {
@@ -55,11 +29,16 @@ class Step {
 
     updateStatus(content) {
 	this.status.innerText = content;
-	console.log("[Status update]", content);
+	if (content)
+	    console.log("[Status update]", content);
     }
 
     get next() {
 	return liveSteps[this.index + 1];
+    }
+
+    get previous() {
+	return liveSteps[this.index - 1];
     }
 
     done() {
@@ -215,17 +194,22 @@ class DownloadStep extends Step {
 class MetaStep extends Step {
     constructor(e,i) {
 	super(e,i);
-	this.name = document.getElementById("name");
-	this.bundle = document.getElementById("bundle");
-	this.icon = document.getElementById("icon");
-	this.submit = document.getElementById("ready");
+	this.name = document.getElementById("meta-name");
+	this.bundle = document.getElementById("meta-bundle");
+	this.icon = document.getElementById("meta-icon");
+	this.submit = document.getElementById("meta-ready");
+	this.iconList = document.querySelector(".meta-icon-list");
+	this.iconPicker = document.querySelector(".meta-icon-picker");
+	this.customIcon = document.querySelector(".meta-custom-icon");
 	this.submit.addEventListener("click", () => this.doneButton());
+	this.icon.addEventListener("click", () => this.toggleIconPicker());
     }
 
-    ready() {
+    async ready() {
 	super.ready();
 	let varState = {}
 	const game = sharedState.gameData;
+	this.iconPicker.classList.add("hidden");
 	if (game.isBalatro) {
 	    varState = balatroPreset;
 	} else {
@@ -237,23 +221,72 @@ class MetaStep extends Step {
 	    varState.name = game.name.match(nameRegex)?.[1];
 	    if (!varState.identity && varState.name) varState.identity = nameToIdentity(varState.name);
 	}
-	console.log(varState);
 	this.name.value = varState.name || "Lovely Mobile Maker";
 	this.bundle.value = baseID + (varState.identity ? "." + varState.identity : "");
+	this.prepared = this.prepareAPK();
+	await this.prepared;
+	if(game.isBalatro) sharedState.icon = 1;
+	else sharedState.icon = 0;
+	this.iconList.innerHTML = "";
+	makeIconList(this.iconList, sharedState, this);
     }
 
     clear() {
 	super.clear();
+	this.iconPicker.classList.add("hidden");
 	sharedState.meta = null;
     }
-    doneButton() {
-	if (!this.bundle.checkValidity()) return console.info("Cannot continue, invalid bundle");
+
+    async checkIcon() {
+	sharedState.iconImg = null;
+	const icon = icons[sharedState.icon];
+	if (icon.type === "internal") {
+	    return true
+	}
+	const img = await getImageForIcon(icon).catch(e => {
+	    console.error("Error getting icon", e);
+	    return null
+	});
+	if (!img) return;
+	sharedState.iconImg = img;
+	return true
+    }
+
+    async doneButton() {
+	if (!sharedState.apk) // It's been consumed
+	    await this.prepareAPK();
+	this.updateStatus("");
+	if (!this.bundle.checkValidity()) return this.updateStatus("Cannot continue, invalid bundle id");
+	if (!(await this.checkIcon())) return this.updateStatus("Cannot continue, invalid icon");
+	this.iconPicker.classList.add("hidden");
+	this.next.reset();
+	await this.prepared
 	const meta = {};
 	meta.name = this.name.value || null;
 	meta.bundle = this.bundle.value;
 	sharedState.meta = meta;
 	this.done();
     }
+
+    async prepareAPK() {
+	this.updateStatus("Preparing APK...");
+	await asyncTimeout();
+	sharedState.apk = zip_open(sharedState.apkData);
+	this.updateStatus("");
+    }
+
+    async updateSelectedIcon(icon) {
+	const img = await getImageForIcon(icon, sharedState).catch(console.error);
+	if (img)
+	    this.icon.replaceChildren(img);
+	else 
+	    this.icon.innerText = ""
+    }
+
+    toggleIconPicker() {
+	this.iconPicker.classList.toggle("hidden");
+    }
+
 }
 
 class GenerateStep extends Step {
@@ -261,17 +294,16 @@ class GenerateStep extends Step {
 	super(e, i);
 	this.status2 = document.createElement("p");
 	this.status2.classList.add("status");
-	this.element.append(this.status);
+	this.element.append(this.status2);
     }
 
-    ready() {
+    async ready() {
 	super.ready();
 	try {
-	    this.prepareAPK();
-	    this.patchManifest();
-	    this.patchIcon();
-	    this.copyAssets();
-	    this.signAndSave();
+	    await this.patchManifest();
+	    await this.patchIcon();
+	    await this.copyAssets();
+	    await this.signAndSave();
 	    this.done();
 	} catch(e) {
 	    console.error(e);
@@ -289,13 +321,9 @@ class GenerateStep extends Step {
 	this.status2.innerText = content;
     }
 
-    prepareAPK() {
-	this.updateStatus("Preparing APK...");
-	sharedState.apk = zip_open(sharedState.apkData);
-    }
-
-    patchManifest() {
+    async patchManifest() {
 	this.updateStatus("Patching Manifest...");
+	await asyncTimeout();
 	let data = zip_read_file(sharedState.apk, "AndroidManifest.xml");
 	let xmlString = axml_to_xml(data);
 	const p = new DOMParser();
@@ -305,21 +333,25 @@ class GenerateStep extends Step {
 	const s = new XMLSerializer();
 	xmlString = s.serializeToString(xml);
 	data = xml_to_axml(xmlString);
-	console.log(xmlString)
-	console.log(data)
 	write_file(sharedState.apk, "AndroidManifest.xml", data);
     }
 
-    patchIcon(){} // TODO:
+    async patchIcon(){
+	if (!sharedState.iconImg) return
+	this.updateStatus("Patching icons...");
+	await asyncTimeout();
+	const img = sharedState.iconImg;
+	qualities.forEach(([type, size]) => write_file(sharedState.apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
+    }
 
-    copyAssets(){
+    async copyAssets(){
 	this.updateStatus("Copying game files...");
 	console.time("Copying files");
 	const game = sharedState.gameData;
 	for (const f of game.files) {
 	    if (f.endsWith("/")) continue;
 	    this.updateStatus2(f);
-	    // await asyncTimeout();
+	    await asyncTimeout();
 	    const d = zip_read_file(game.zip, f);
 	    const nn = "assets/" + f;
 	    write_file(sharedState.apk, nn, d);
@@ -328,22 +360,42 @@ class GenerateStep extends Step {
 	this.updateStatus2("");
     }
 
-    signAndSave(){
+    async signAndSave(){
 	this.updateStatus("Signing game...");
-	// await asyncTimeout();
+	await asyncTimeout();
 	const raw = zip_save_and_sign_v2(sharedState.apk, sharedState.cert);
+	this.previous.prepareAPK(); // The APK has been consumed
 
 	this.updateStatus("Done");
+	sharedState.final = raw;
 	downloadBlob(raw, "game.apk", "application/vnd.android.package-archive");
+    }
+
+    reset() {
+	super.reset();
+	this.final = null;
     }
 }
 
+class DoneStep extends Step {
+       constructor(e, i) {
+	   super(e, i);
+	   const button = document.getElementById("done-download");
+	   button.addEventListener("click", () => downloadBlob(sharedState.final, "game.apk", "application/vnd.android.package-archive"));
+       }
+    
+    ready() {
+	super.ready();
+	Array.from(this.element.querySelectorAll(".balatro-only")).forEach(e => e.classList[sharedState.gameData.isBalatro ? "remove" : "add"]("hidden"));
+    }
+}
 
 const steps = [
     GameStep,
     DownloadStep,
     MetaStep,
     GenerateStep,
+    DoneStep,
 ];
 
 
@@ -356,6 +408,6 @@ function loadSteps() {
     });
 }
 
-loadSteps();
-
-console.log(sharedState)
+export {
+    loadSteps,
+}

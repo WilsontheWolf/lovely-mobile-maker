@@ -1,13 +1,14 @@
 function urlToImg(url) {
+    if (!url) return Promise.reject("No URL Provided");
     return new Promise((res, rej) => {
 	const img = new Image();
-	img.src = url;
 	img.addEventListener("load", () => res(img));
 	img.addEventListener("error", () => rej("Failed to get image"));
+	img.src = url;
     });
 }
 
-function imgToPNGOfSize(img, d, round, fit) {
+function imgToURLOfSize(img, d, round, fit) {
     const canvas = document.createElement("canvas");
     canvas.width = d;
     canvas.height = d;
@@ -31,8 +32,11 @@ function imgToPNGOfSize(img, d, round, fit) {
 	const scale = iw / d;
 	ctx.drawImage(img, 0, -(ih / scale - d) / 2, d, d * ratio);
     }
-    const url = canvas.toDataURL("image/png")
-    return convertDataURIToBinary(url);
+    return canvas.toDataURL("image/png")
+}
+
+function imgToPNGOfSize(img, d, round, fit) {
+    return convertDataURIToBinary(imgToURLOfSize(img, d, round, fit));
 }
 
 const BASE64_MARKER = ';base64,';
@@ -49,8 +53,14 @@ function convertDataURIToBinary(dataURI) {
     return array;
 }
 
+function convertBinaryToDataURI(binary, contentType) {
+    return `data:${contentType};base64,${btoa(String.fromCharCode(...binary))}`;
+}
+
 export {
     urlToImg,
     imgToPNGOfSize,
+    convertBinaryToDataURI,
+    imgToURLOfSize,
 }
 
