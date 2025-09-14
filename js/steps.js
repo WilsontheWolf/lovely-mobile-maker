@@ -206,29 +206,34 @@ class MetaStep extends Step {
     }
 
     async ready() {
-	super.ready();
-	let varState = {}
-	const game = sharedState.gameData;
-	this.iconPicker.classList.add("hidden");
-	if (game.isBalatro) {
-	    varState = balatroPreset;
-	} else {
-	    if(game.hasConf) {
-		const conf = decoder.decode(zip_read_file(game.zip, "conf.lua"));
-		const identity = conf.match(identityRegex);
-		if (identity) varState.identity = identity[1];
+	try {
+	    super.ready();
+	    let varState = {}
+	    const game = sharedState.gameData;
+	    this.iconPicker.classList.add("hidden");
+	    if (game.isBalatro) {
+		varState = balatroPreset;
+	    } else {
+		if(game.hasConf) {
+		    const conf = decoder.decode(zip_read_file(game.zip, "conf.lua"));
+		    const identity = conf.match(identityRegex);
+		    if (identity) varState.identity = identity[1];
+		}
+		varState.name = game.name.match(nameRegex)?.[1];
+		if (!varState.identity && varState.name) varState.identity = nameToIdentity(varState.name);
 	    }
-	    varState.name = game.name.match(nameRegex)?.[1];
-	    if (!varState.identity && varState.name) varState.identity = nameToIdentity(varState.name);
+	    this.name.value = varState.name || "Lovely Mobile Maker";
+	    this.bundle.value = baseID + (varState.identity ? "." + varState.identity : "");
+	    this.prepared = this.prepareAPK();
+	    await this.prepared;
+	    if(game.isBalatro) sharedState.icon = 1;
+	    else sharedState.icon = 0;
+	    this.iconList.innerHTML = "";
+	    makeIconList(this.iconList, sharedState, this);
+	} catch(e) {
+	    console.error(e);
+	    this.updateStatus("An error occured!?!?!? " + e);
 	}
-	this.name.value = varState.name || "Lovely Mobile Maker";
-	this.bundle.value = baseID + (varState.identity ? "." + varState.identity : "");
-	this.prepared = this.prepareAPK();
-	await this.prepared;
-	if(game.isBalatro) sharedState.icon = 1;
-	else sharedState.icon = 0;
-	this.iconList.innerHTML = "";
-	makeIconList(this.iconList, sharedState, this);
     }
 
     clear() {
@@ -378,12 +383,12 @@ class GenerateStep extends Step {
 }
 
 class DoneStep extends Step {
-       constructor(e, i) {
-	   super(e, i);
-	   const button = document.getElementById("done-download");
-	   button.addEventListener("click", () => downloadBlob(sharedState.final, "game.apk", "application/vnd.android.package-archive"));
-       }
-    
+    constructor(e, i) {
+	super(e, i);
+	const button = document.getElementById("done-download");
+	button.addEventListener("click", () => downloadBlob(sharedState.final, "game.apk", "application/vnd.android.package-archive"));
+    }
+
     ready() {
 	super.ready();
 	Array.from(this.element.querySelectorAll(".balatro-only")).forEach(e => e.classList[sharedState.gameData.isBalatro ? "remove" : "add"]("hidden"));
