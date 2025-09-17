@@ -10,8 +10,8 @@ pub fn zip_open(buf: &[u8]) -> Result<ZipFile, String> {
 }
 
 #[wasm_bindgen]
-pub fn zip_read_file(zip: &mut ZipFile, name: &str) -> Vec<u8> {
-    zip.read_file(name).unwrap()
+pub fn zip_read_file(zip: &mut ZipFile, name: &str) -> Result<Vec<u8>, String> {
+    zip.read_file(name).map_err(|e| e.to_string())
 }
 
 #[wasm_bindgen]

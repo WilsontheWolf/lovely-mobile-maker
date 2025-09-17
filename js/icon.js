@@ -15,12 +15,12 @@ const icons = [
 	type: "external",
 	name: "Balatro",
 	src: "/img/Balatro.png",
-	round: true,
+	// round: true,
     },
     {
 	type: "external",
 	name: "LÖVE",
-	src: "/img/love.png",
+	src: "/img/love-ios.png",
     },
     uploadIcon,
 ];
@@ -29,13 +29,23 @@ let customIcon = null;
 let customIconDiv = null;
 let lastStep;
 
-const highest = "xxxhdpi";
+const highest = "iOS AppIcon60x60@3x.png";
 const qualities = [
-    ["mdpi", 48],
-    ["hdpi", 72],
-    ["xhdpi", 96],
-    ["xxhdpi", 144],
-    ["xxxhdpi", 192],
+    ["iOS AppIcon29x29@2x.png", 58],
+    ["iOS AppIcon29x29@2x~ipad.png", 58],
+    ["iOS AppIcon29x29@3x.png", 87],
+    ["iOS AppIcon40x40@2x.png", 80],
+    ["iOS AppIcon40x40@3x.png", 120],
+    ["iOS AppIcon60x60@2x.png", 120],
+    ["iOS AppIcon60x60@3x.png", 180],
+    ["iOS AppIcon29x29~ipad.png", 29],
+    ["iOS AppIcon29x29@2x.png", 58],
+    ["iOS AppIcon40x40~ipad.png", 40],
+    ["iOS AppIcon40x40@2x.png", 80],
+    ["iOS AppIcon40x40@2x~ipad.png", 80],
+    ["iOS AppIcon76x76~ipad.png", 76],
+    ["iOS AppIcon76x76@2x~ipad.png", 152],
+    ["iOS AppIcon83.5x83.5@2x~ipad.png", 167],
 ];
 const customForm = {
     upload: document.getElementById("icon-upload"),
@@ -47,8 +57,6 @@ let highestPx = qualities.find(i => i[0] === highest)[1];
 
 const setup = {
     internal: (conf, sharedState) => {
-	const iconBuffer = zip_read_file(sharedState.apk, `res/drawable-${highest}-v4/love.png`);
-	return urlToImg(convertBinaryToDataURI(iconBuffer, "image/png"));
     },
     external: async (conf) => {
 	let img = await urlToImg(conf.src);

@@ -21,6 +21,7 @@ textarea {
 img, canvas {
     width: 100%;
     /*! height: max-content; */
+    border-radius: 15.6%;
 }
 
 pre {
@@ -125,7 +126,7 @@ pre {
 
 .meta-icon-list img {
     width: 3em;
-    padding-right: 0.5em;
+    margin-right: 0.5em;
 }
 
 .meta-icon-picker {

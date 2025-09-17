@@ -8,6 +8,7 @@ const wasmReady = init();
 const liveSteps = [];
 const sharedState = {};
 const decoder = new TextDecoder();
+const encoder = new TextEncoder();
 const identityRegex = /t.identity\s*=\s*['"]([^'"]+)/;
 const nameRegex = /^(.+?)(?:\.[^.]+)?$/;
 
@@ -152,7 +153,7 @@ class GameStep extends Step {
 	if (!isLove) throw "Provided file does not appear to be a valid love game (no main.lua)"
 	this.updateStatus("Valid File Passed!")
 	return {
-	    zip, isBalatro, isLove, files, hasConf, name,
+	    zip, isBalatro, isLove, files, hasConf, name, data
 	}
     }
 }
@@ -165,11 +166,11 @@ class DownloadStep extends Step {
 	super.ready();
 	try {
 	    if (!sharedState.apkData) {
-		this.updateStatus("Downloading base APK...");
-		const res = await fetch("/base.apk")
+		this.updateStatus("Downloading base IPA...");
+		const res = await fetch("/base.ipa")
 		    .then(async r => {
 			if(r.ok) return new Uint8Array(await r.arrayBuffer());
-			throw new Error("Failed to fetch base.apk: " + r.status + ": " + r.statusText)
+			throw new Error("Failed to fetch base.ipa: " + r.status + ": " + r.statusText)
 		    });
 		sharedState.apkData = res
 	    }
@@ -329,16 +330,16 @@ class GenerateStep extends Step {
     async patchManifest() {
 	this.updateStatus("Patching Manifest...");
 	await asyncTimeout();
-	let data = zip_read_file(sharedState.apk, "AndroidManifest.xml");
-	let xmlString = axml_to_xml(data);
+	let data = zip_read_file(sharedState.apk, "Payload/Lovely Mobile Maker.app/Info.plist");
+	let xmlString = decoder.decode(data);
 	const p = new DOMParser();
 	const xml = p.parseFromString(xmlString, "application/xml");
 	const modifed = modifyManifest(xml, sharedState.meta.name, sharedState.meta.bundle);
 	if (!modifed) return;
 	const s = new XMLSerializer();
 	xmlString = s.serializeToString(xml);
-	data = xml_to_axml(xmlString);
-	write_file(sharedState.apk, "AndroidManifest.xml", data);
+	data = encoder.encode(xmlString);
+	write_file(sharedState.apk, "Payload/Lovely Mobile Maker.app/Info.plist", data);
     }
 
     async patchIcon(){
@@ -346,21 +347,14 @@ class GenerateStep extends Step {
 	this.updateStatus("Patching icons...");
 	await asyncTimeout();
 	const img = sharedState.iconImg;
-	qualities.forEach(([type, size]) => write_file(sharedState.apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
+	qualities.forEach(([type, size]) => write_file(sharedState.apk, `Payload/Lovely Mobile Maker.app/${type}`, imgToPNGOfSize(img, size)));
     }
 
     async copyAssets(){
 	this.updateStatus("Copying game files...");
 	console.time("Copying files");
 	const game = sharedState.gameData;
-	for (const f of game.files) {
-	    if (f.endsWith("/")) continue;
-	    this.updateStatus2(f);
-	    await asyncTimeout();
-	    const d = zip_read_file(game.zip, f);
-	    const nn = "assets/" + f;
-	    write_file(sharedState.apk, nn, d);
-	}
+	write_file(sharedState.apk, "Payload/Lovely Mobile Maker.app/game.love", game.data);
 	console.timeEnd("Copying files");
 	this.updateStatus2("");
     }
@@ -373,7 +367,7 @@ class GenerateStep extends Step {
 
 	this.updateStatus("Done");
 	sharedState.final = raw;
-	downloadBlob(raw, "game.apk", "application/vnd.android.package-archive");
+	downloadBlob(raw, "game.ipa", "application/octet-stream");
     }
 
     reset() {
@@ -386,7 +380,7 @@ class DoneStep extends Step {
     constructor(e, i) {
 	super(e, i);
 	const button = document.getElementById("done-download");
-	button.addEventListener("click", () => downloadBlob(sharedState.final, "game.apk", "application/vnd.android.package-archive"));
+	button.addEventListener("click", () => downloadBlob(sharedState.final, "game.ipa", "application/octet-stream"));
     }
 
     ready() {

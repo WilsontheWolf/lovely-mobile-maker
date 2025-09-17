@@ -3,7 +3,10 @@ function urlToImg(url) {
     return new Promise((res, rej) => {
 	const img = new Image();
 	img.addEventListener("load", () => res(img));
-	img.addEventListener("error", () => rej("Failed to get image"));
+	img.addEventListener("error", (e) => {
+	    console.error(e.error);
+	    rej("Failed to get image")
+	});
 	img.src = url;
     });
 }
