@@ -125,7 +125,7 @@ pre {
 
 .meta-icon-list img {
     width: 3em;
-    padding-right: 0.5em;
+    margin-right: 0.5em;
 }
 
 .meta-icon-picker {
@@ -188,4 +188,21 @@ details[open] > summary {
 
 details {
     margin-bottom: 1em;
+}
+
+body:not(.game-balatro) .balatro-only {
+    display: none;
+}
+
+body:not(.platform-android) .android-only {
+    display: none;
+}
+
+body:not(.platform-ios) .ios-only {
+    display: none;
+}
+
+.platform-ios #meta-icon img,
+.platform-ios .meta-icon-list img {
+    border-radius: 15.6%;
 }

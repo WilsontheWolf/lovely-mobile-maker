@@ -1,13 +1,15 @@
 import init, { zip_open, zip_read_file, entry_names, axml_to_xml, xml_to_axml, write_file, zip_save_and_sign_v2 } from "./pkg/mbf_bindgen.js";
-import { modifyManifest } from "./manifest.js";
-import { downloadBlob, nameToIdentity, asyncTimeout } from "./util.js";
-import { makeIconList, getImageForIcon, icons, qualities } from "./icon.js";
+import { modifyManifest, modifyInfoPlist } from "./manifest.js";
+import { downloadBlob, nameToIdentity, asyncTimeout, getMainDir } from "./util.js";
+import { makeIconList, getImageForIcon, icons, getQualities } from "./icon.js";
 import { imgToPNGOfSize } from "./img.js";
+import sharedState from "./state.js";
+import * as platformValues from "./platform.js";
 
 const wasmReady = init();
 const liveSteps = [];
-const sharedState = {};
 const decoder = new TextDecoder();
+const encoder = new TextEncoder();
 const identityRegex = /t.identity\s*=\s*['"]([^'"]+)/;
 const nameRegex = /^(.+?)(?:\.[^.]+)?$/;
 
@@ -90,6 +92,7 @@ class GameStep extends Step {
 	reader.onload = () => {
 	    wasmReady.then(() => {
 		sharedState.gameData = this.processGame(new Uint8Array(reader.result), file.name);
+		document.body.classList[sharedState.gameData.isBalatro ? "add" : "remove"]("game-balatro");
 		this.done();
 	    }).catch(e => {
 		console.error(e)
@@ -152,8 +155,36 @@ class GameStep extends Step {
 	if (!isLove) throw "Provided file does not appear to be a valid love game (no main.lua)"
 	this.updateStatus("Valid File Passed!")
 	return {
-	    zip, isBalatro, isLove, files, hasConf, name,
+	    zip, isBalatro, isLove, files, hasConf, name, data,
 	}
+    }
+}
+
+class PlatformStep extends Step {
+    constructor(e, i) {
+	super(e, i);
+	const select = e.querySelector("select");
+	this.select = select;
+	this.select.value = "";
+	select.addEventListener("change", this.updateSelect.bind(this));
+    }
+
+    clear() {
+	super.clear();
+	this.select.selectedIndex = 0;
+    }
+
+    updateSelect() {
+	const value = this.select.value;
+	sharedState.platform = value;
+	sharedState.platformValues = platformValues[value];
+	sharedState.apk = null;
+	const classList = document.body.classList;
+	for (const option of this.select.options) {
+	    if (option.value === value) classList.add(`platform-${option.value}`);
+	    else classList.remove(`platform-${option.value}`);
+	}
+	this.done();
     }
 }
 
@@ -164,14 +195,15 @@ class DownloadStep extends Step {
     async ready() {
 	super.ready();
 	try {
-	    if (!sharedState.apkData) {
-		this.updateStatus("Downloading base APK...");
-		const res = await fetch("/base.apk")
+	    const type = sharedState.platform === "ios" ? "ipaData" : "apkData";
+	    if (!sharedState[type]) {
+		this.updateStatus("Downloading base app...");
+		const res = await fetch("/base" + sharedState.platformValues.ext)
 		    .then(async r => {
 			if(r.ok) return new Uint8Array(await r.arrayBuffer());
-			throw new Error("Failed to fetch base.apk: " + r.status + ": " + r.statusText)
+			throw new Error("Failed to fetch base" + sharedState.platformValues.ext +": " + r.status + ": " + r.statusText)
 		    });
-		sharedState.apkData = res
+		sharedState[type] = res
 	    }
 	    if (!sharedState.cert) {
 		this.updateStatus("Downloading cert...");
@@ -229,7 +261,7 @@ class MetaStep extends Step {
 	    if(game.isBalatro) sharedState.icon = 1;
 	    else sharedState.icon = 0;
 	    this.iconList.innerHTML = "";
-	    makeIconList(this.iconList, sharedState, this);
+	    makeIconList(this.iconList, this);
 	} catch(e) {
 	    console.error(e);
 	    this.updateStatus("An error occured!?!?!? " + e);
@@ -276,12 +308,13 @@ class MetaStep extends Step {
     async prepareAPK() {
 	this.updateStatus("Preparing APK...");
 	await asyncTimeout();
-	sharedState.apk = zip_open(sharedState.apkData);
+	const type = sharedState.platform === "ios" ? "ipaData" : "apkData";
+	sharedState.apk = zip_open(sharedState[type]);
 	this.updateStatus("");
     }
 
     async updateSelectedIcon(icon) {
-	const img = await getImageForIcon(icon, sharedState).catch(console.error);
+	const img = await getImageForIcon(icon).catch(console.error);
 	if (img)
 	    this.icon.replaceChildren(img);
 	else 
@@ -329,16 +362,30 @@ class GenerateStep extends Step {
     async patchManifest() {
 	this.updateStatus("Patching Manifest...");
 	await asyncTimeout();
-	let data = zip_read_file(sharedState.apk, "AndroidManifest.xml");
-	let xmlString = axml_to_xml(data);
-	const p = new DOMParser();
-	const xml = p.parseFromString(xmlString, "application/xml");
-	const modifed = modifyManifest(xml, sharedState.meta.name, sharedState.meta.bundle);
-	if (!modifed) return;
-	const s = new XMLSerializer();
-	xmlString = s.serializeToString(xml);
-	data = xml_to_axml(xmlString);
-	write_file(sharedState.apk, "AndroidManifest.xml", data);
+	if (sharedState.platform === "ios") {
+	    const path = getMainDir(sharedState.apk, sharedState.platform) + "Info.plist";
+	    let data = zip_read_file(sharedState.apk, path);
+	    let xmlString = decoder.decode(data);
+	    const p = new DOMParser();
+	    const xml = p.parseFromString(xmlString, "application/xml");
+	    const modifed = modifyInfoPlist(xml, sharedState.meta.name, sharedState.meta.bundle);
+	    if (!modifed) return;
+	    const s = new XMLSerializer();
+	    xmlString = s.serializeToString(xml);
+	    data = encoder.encode(xmlString);
+	    write_file(sharedState.apk, path, data);
+	} else {
+	    let data = zip_read_file(sharedState.apk, "AndroidManifest.xml");
+	    let xmlString = axml_to_xml(data);
+	    const p = new DOMParser();
+	    const xml = p.parseFromString(xmlString, "application/xml");
+	    const modifed = modifyManifest(xml, sharedState.meta.name, sharedState.meta.bundle);
+	    if (!modifed) return;
+	    const s = new XMLSerializer();
+	    xmlString = s.serializeToString(xml);
+	    data = xml_to_axml(xmlString);
+	    write_file(sharedState.apk, "AndroidManifest.xml", data);
+	}
     }
 
     async patchIcon(){
@@ -346,20 +393,25 @@ class GenerateStep extends Step {
 	this.updateStatus("Patching icons...");
 	await asyncTimeout();
 	const img = sharedState.iconImg;
-	qualities.forEach(([type, size]) => write_file(sharedState.apk, `res/drawable-${type}-v4/love.png`, imgToPNGOfSize(img, size)));
+	const qualities = getQualities();
+	qualities.all.forEach(([type, size]) => write_file(sharedState.apk, qualities.getPath(type), imgToPNGOfSize(img, size)));
     }
 
     async copyAssets(){
 	this.updateStatus("Copying game files...");
 	console.time("Copying files");
 	const game = sharedState.gameData;
-	for (const f of game.files) {
-	    if (f.endsWith("/")) continue;
-	    this.updateStatus2(f);
-	    await asyncTimeout();
-	    const d = zip_read_file(game.zip, f);
-	    const nn = "assets/" + f;
-	    write_file(sharedState.apk, nn, d);
+	if (sharedState.platform === "ios") {
+	    write_file(sharedState.apk, getMainDir(sharedState.apk, sharedState.platform) + "game.love", game.data);
+	} else {
+	    for (const f of game.files) {
+		if (f.endsWith("/")) continue;
+		this.updateStatus2(f);
+		await asyncTimeout();
+		const d = zip_read_file(game.zip, f);
+		const nn = "assets/" + f;
+		write_file(sharedState.apk, nn, d);
+	    }
 	}
 	console.timeEnd("Copying files");
 	this.updateStatus2("");
@@ -373,7 +425,7 @@ class GenerateStep extends Step {
 
 	this.updateStatus("Done");
 	sharedState.final = raw;
-	downloadBlob(raw, "game.apk", "application/vnd.android.package-archive");
+	downloadBlob(raw, "game" + sharedState.platformValues.ext, sharedState.platformValues.mime);
     }
 
     reset() {
@@ -386,17 +438,17 @@ class DoneStep extends Step {
     constructor(e, i) {
 	super(e, i);
 	const button = document.getElementById("done-download");
-	button.addEventListener("click", () => downloadBlob(sharedState.final, "game.apk", "application/vnd.android.package-archive"));
+	button.addEventListener("click", () => downloadBlob(sharedState.final, "game" + sharedState.platformValues.ext, sharedState.platformValues.mime));
     }
 
     ready() {
 	super.ready();
-	Array.from(this.element.querySelectorAll(".balatro-only")).forEach(e => e.classList[sharedState.gameData.isBalatro ? "remove" : "add"]("hidden"));
     }
 }
 
 const steps = [
     GameStep,
+    PlatformStep,
     DownloadStep,
     MetaStep,
     GenerateStep,
@@ -406,7 +458,6 @@ const steps = [
 
 function loadSteps() {
     steps.forEach((step, i) => {
-	console.log(i);
 	const ele = document.getElementById(`step${i + 1}`);
 	if (!ele) throw "Hi dad";
 	liveSteps.push(new step(ele, i));
