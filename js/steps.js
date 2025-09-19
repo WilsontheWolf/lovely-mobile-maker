@@ -184,6 +184,7 @@ class PlatformStep extends Step {
 	    if (option.value === value) classList.add(`platform-${option.value}`);
 	    else classList.remove(`platform-${option.value}`);
 	}
+	this.next?.reset();
 	this.done();
     }
 }
