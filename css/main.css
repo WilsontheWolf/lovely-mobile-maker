@@ -206,3 +206,18 @@ body:not(.platform-ios) .ios-only {
 .platform-ios .meta-icon-list img {
     border-radius: 15.6%;
 }
+
+footer p {
+    margin: 0;
+    margin-bottom: .5em;
+}
+
+footer {
+    padding: 1em;
+    padding-bottom: .5em;
+    border-radius: 1em;
+    border: solid #C2AD09 0.1em;
+    background-color: #0000007F;
+    backdrop-filter: blur(2em);
+    margin-bottom: 1em
+}
