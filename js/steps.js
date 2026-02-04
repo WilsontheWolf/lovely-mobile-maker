@@ -220,6 +220,13 @@ class DownloadStep extends Step {
 	} catch (e) {
 	    console.error(e);
 	    this.updateStatus("An error ocurred: " + e);
+	    const button = document.createElement("button");
+	    button.innerText = "Retry";
+	    button.addEventListener("click", () => {
+		this.ready();
+	    });
+	    this.status.appendChild(document.createElement("br"));
+	    this.status.appendChild(button);
 	}
     }
 }
@@ -307,7 +314,7 @@ class MetaStep extends Step {
     }
 
     async prepareAPK() {
-	this.updateStatus("Preparing APK...");
+	this.updateStatus(`Preparing ${sharedState.platform === "ios" ? "IPA" : "APK"}...`);
 	await asyncTimeout();
 	const type = sharedState.platform === "ios" ? "ipaData" : "apkData";
 	sharedState.apk = zip_open(sharedState[type]);
@@ -364,6 +371,7 @@ class GenerateStep extends Step {
 	this.updateStatus("Patching Manifest...");
 	await asyncTimeout();
 	if (sharedState.platform === "ios") {
+	    await asyncTimeout(100); // iOS doesn't update as much and as such can appear stuck on the metadata step
 	    const path = getMainDir(sharedState.apk, sharedState.platform) + "Info.plist";
 	    let data = zip_read_file(sharedState.apk, path);
 	    let xmlString = decoder.decode(data);

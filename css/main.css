@@ -221,3 +221,37 @@ footer {
     backdrop-filter: blur(2em);
     margin-bottom: 1em
 }
+
+.step:not(.collapsed) {
+    border-color: color-mix(in oklab, var(--step-colour), black 20%);
+}
+
+.step.collapsed {
+    border-color: grey;
+    color: grey;
+}
+
+/* Fucked up selector to get the active step */
+.step:not(.collapsed):not(:has(~ .step:not(.collapsed))) {
+    border-color: var(--step-colour);
+    border-style: solid;
+}
+
+#step1 {
+    --step-colour: cornflowerblue;
+}
+#step2 {
+    --step-colour: darkviolet;
+}
+#step3 {
+    --step-colour: tomato;
+}
+#step4 {
+    --step-colour: lightseagreen;
+}
+#step5 {
+    --step-colour: deeppink;
+}
+#step6 {
+    --step-colour: lawngreen;
+}
