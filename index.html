@@ -1,141 +1,91 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <meta charset='utf-8'>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+        <title>Lovely Mobile Maker</title>
+        <meta name='viewport' content='width=device-width, initial-scale=1'>
+        <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
+        <script src='js/main.js' type="module"></script>
+    </head>
 
-<head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Lovely Mobile Maker</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
-    <script src='js/main.js' type="module"></script>
-</head>
-
-<body>
-    <h1>Lovely Mobile Maker</h1>
-<!--
-    Ideas for steps:
-    - Colour and icons for status
-    - Colour for border/heading unique to each step
-    - One colour for step depending on if collapsed or not
-    - Completed steps get solid border
-    - Completed steps lose colour unless hovered
--->
-    <div id="step1" class="step">
-        <h3>Step 1 - Game Files</h3>
-        <p>Please provide your main game files.</p>
-        <details>
-            <summary>How to find game files?</summary>
-            <p>You can find Balatro&#39;s game files with steam. Click Balatro &gt; the gear icon &gt; Properties... &gt; Installed Files &gt; Browse...</p>
-            <p>This will open your computer&#39;s file browser to the Balatro folder.</p>
-            <p>On Windows and Linux Systems the file <code>Balatro.exe</code> is the one you want.</p>
-            <p>On MacOS systems you will need to right click <code>Balatro</code> and click &quot;Show Package Contents&quot;. Then navigate to Contents &gt; Resources  and the <code>Balatro.love</code> in here will be the file you want.</p>
-        </details>
-        <input type="file" id="gamefile" name="file" />
-    </div>
-    <div id="step2" class="step collapsed">
-        <h3>Step 2 - Choose Platform</h3>
-        <p>Please choose which platform to build the app for.</p>
-        <p>
-        <select>
-            <option value="" selected disabled>Select One</option>
-            <option value="ios">iOS</option>
-            <option value="android">Android</option>
-        </select>
-        </p>
-    </div>
-    <div id="step3" class="step collapsed">
-        <h3>Step 3 - Downloading Assets</h3>
-        <p>Please wait while nessicary files are downloaded...</p>
-    </div>
-    <div id="step4" class="step collapsed">
-        <h3>Step 4 - Metadata</h3>
-        <p>In this step you can custimize the details of the app.</p>
-        <details>
-            <summary>What is the bundle ID?</summary>
-            <p>The bundle ID is what is used to identity an app.</p>
-            <p>If the bundle ID changes then the app is considered a different app. This can be used to install multiple copies of the app.</p>
-            <p>If unsure, you should leave this value alone.</p>
-        </details>
-        <div style="position: absolute">
-            <div class="meta-icon-picker hidden">
-                <div class="meta-icon-list">
-                </div>
-                <div class="meta-custom-icon hidden">
-                    <h3 style="margin-bottom: 0; margin-top: 0.3em">Custom Icon Settings</h3>
-                    <p><label>Upload: </input><input id="icon-upload" type="file" accept="image/*"></input></p>
-                    <p><label>Crop: </input><input id="icon-crop" type="checkbox"></input></p>
-                    <p class="android-only"><label>Round: </input><input id="icon-round" type="checkbox"></input></p>
+    <body>
+        <h1>Lovely Mobile Maker</h1>
+        <div id="step1" class="step">
+            <h3>Step 1 - Game Files</h3>
+            <p>Please provide your main game files.</p>
+            <details>
+                <summary>How to find game files?</summary>
+                <p>You can find Balatro&#39;s game files with steam. Click Balatro &gt; the gear icon &gt; Properties... &gt; Installed Files &gt; Browse...</p>
+                <p>This will open your computer&#39;s file browser to the Balatro folder.</p>
+                <p>On Windows and Linux Systems the file <code>Balatro.exe</code> is the one you want.</p>
+                <p>On MacOS systems you will need to right click <code>Balatro</code> and click &quot;Show Package Contents&quot;. Then navigate to Contents &gt; Resources  and the <code>Balatro.love</code> in here will be the file you want.</p>
+            </details>
+            <input type="file" id="gamefile" name="file" />
+        </div>
+        <div id="step2" class="step collapsed">
+            <h3>Step 2 - Choose Platform</h3>
+            <p>Please choose which platform to build the app for.</p>
+            <p>
+            <select>
+                <option value="" selected disabled>Select One</option>
+                <option value="ios">iOS</option>
+                <option value="android">Android</option>
+            </select>
+            </p>
+        </div>
+        <div id="step3" class="step collapsed">
+            <h3>Step 3 - Downloading Assets</h3>
+            <p>Please wait while nessicary files are downloaded...</p>
+        </div>
+        <div id="step4" class="step collapsed">
+            <h3>Step 4 - Metadata</h3>
+            <p>In this step you can custimize the details of the app.</p>
+            <details>
+                <summary>What is the bundle ID?</summary>
+                <p>The bundle ID is what is used to identity an app.</p>
+                <p>If the bundle ID changes then the app is considered a different app. This can be used to install multiple copies of the app.</p>
+                <p>If unsure, you should leave this value alone.</p>
+            </details>
+            <div style="position: absolute">
+                <div class="meta-icon-picker hidden">
+                    <div class="meta-icon-list">
+                    </div>
+                    <div class="meta-custom-icon hidden">
+                        <h3 style="margin-bottom: 0; margin-top: 0.3em">Custom Icon Settings</h3>
+                        <p><label>Upload: </input><input id="icon-upload" type="file" accept="image/*"></input></p>
+                        <p><label>Crop: </input><input id="icon-crop" type="checkbox"></input></p>
+                        <p class="android-only"><label>Round: </input><input id="icon-round" type="checkbox"></input></p>
+                    </div>
                 </div>
             </div>
+            <div class="meta">
+                <div id="meta-icon">
+                </div>
+                <div class="meta-col">
+                    <p><p>Name: </p><input id="meta-name" type="text"></input></p>
+                    <p><p>Bundle ID: </p><input id="meta-bundle" required="true" pattern="[\w\.]+" type="text"></input></p>
+                </div>
+            </div>
+            <p><button id="meta-ready">Ready</button></p>
         </div>
-        <div class="meta">
-            <div id="meta-icon">
-            </div>
-            <div class="meta-col">
-                <p><p>Name: </p><input id="meta-name" type="text"></input></p>
-                <p><p>Bundle ID: </p><input id="meta-bundle" required="true" pattern="[\w\.]+" type="text"></input></p>
-            </div>
+        <div id="step5" class="step collapsed">
+            <h3>Step 5 - Patching App</h3>
+            <p>This step is where the app is made from your game files. It may take a few minutes to complete. When it is done the app will download.</p>
         </div>
-        <p><button id="meta-ready">Ready</button></p>
-    </div>
-    <div id="step5" class="step collapsed">
-        <h3>Step 5 - Patching App</h3>
-        <p>This step is where the app is made from your game files. It may take a few minutes to complete. When it is done the app will download.</p>
-    </div>
-    <div id="step6" class="step collapsed">
-        <h3>Step 6 - Done!</h3>
-        <p>The app has been patched and now you are able to install it. If for some reason it did not download, or you want to download it again, you may click the button below.</p>
-        <p><button id="done-download">Download</button></p>
-        <h4>What now?</h4>
-        <details name="done" class="android-only">
-            <summary>How to install the app?</summary>
+        <div id="step6" class="step collapsed">
+            <h3>Step 6 - Done!</h3>
+            <p>The app has been patched and now you are able to install it. If for some reason it did not download, or you want to download it again, you may click the button below.</p>
+            <p><button id="done-download">Download</button></p>
+            <h4>What now?</h4>
+            <p>Checkout the <a target="_blank" rel="noopener noreferrer" href="/faq">FAQ's</a> for information such as how to install the app, and how to install mods.</p>
+        </div>
 
-            <p>If you did the process on your device, you should be able to open the download to install it.</p>
-            <p>If you did it on your PC you may either</p>
-            <ul>
-                <li>Copy the file to your device and install it using it&#39;s file manager.</li>
-                <li>If your device is in developer mode, install it using adb.</li>
-            </ul>
-        </details>
-
-        <details name="done" class="ios-only">
-            <summary>How to install the app?</summary>
-
-            <p>It is a bit tricky to sideload apps on iOS. Below are a few different methods:</p>
-            <ul>
-                <li>If your device supports it, <a target="_blank" rel="noopener noreferrer" href="https://github.com/opa334/TrollStore">TrollStore</a> is recommened. It allows infinite app installations without any expiry. You can see the supported device versions, and how to install it <a target="_blank" rel="noopener noreferrer" href="https://ios.cfw.guide/installing-trollstore/">on ios.cfw.guide</a>.</li>
-                <li>If not you can use a computer to install using <a target="_blank" rel="noopener noreferrer" href="https://sideloadly.io/">Sideloady</a> or <a target="_blank" rel="noopener noreferrer" href="https://altstore.io/">AltStore (classic)</a>. <a target="_blank" rel="noopener noreferrer" href="https://ios.cfw.guide/sideloading-apps/">ios.cfw.guide has instructions for these</a>.</li>
-                <li>If you often find yourself without a computer you can setup <a target="_blank" rel="noopener noreferrer" href="https://sidestore.io/">SideStore</a> which after inital setup can resign apps without a computer.</li>
-            </ul>
-        </details>
-
-        <details name="done">
-            <summary>How to install mods?</summary>
-
-            <div class="android-only">
-                <p>Unfortunately, most android file managers are quite bad for this purpose. As such I recommend using <a target="_blank" rel="noopener noreferrer" href="https://github.com/zhanghai/MaterialFiles">Material Files</a> (It can be install on <a target="_blank" rel="noopener noreferrer" href="https://f-droid.org/packages/me.zhanghai.android.files">F-Droid</a> and <a target="_blank" rel="noopener noreferrer" href="https://play.google.com/store/apps/details?id=me.zhanghai.android.files">Google Play</a>).</p>
-                <p>After installing Material Files, you can then open the hamburger menu on the top left &gt; Add Storage... &gt; External Storage &gt; the hamburger menu on the top left &gt; The name of the app &gt; Use this folder &gt; allow. </p>
-                <p>This will add a new folder to the sidebar with your game saves. Lovely mods will always be in ASET &gt; Mods and game saves will either be in ASET or a folder of the game name (it depends on the game).</p>
-            </div>
-            <div class="ios-only">
-                <p>Once installed, and the app has been run once, there will be a new folder under <code>On My iPhone/iPad</code> named after the app. Lovely mods will be put in here under game > Mods.</p>
-            </div>
-            <p>You may install mods like normal in here.<span class="balatro-only"> You can follow the <a target="_blank" rel="noopener noreferrer" href="https://github.com/Steamodded/smods/wiki/Installing-Steamodded-windows#step-3-installing-steamodded">Steamodded install guide</a> from step 3 here to install Steamodded. Make sure to replace any mentions of <code>%AppData%/Balatro</code> with <code class="ios-only">game/Mods</code><code class="android-only">ASET/Mods</code>.</span></p>
-        </details>
-
-        <details name="done" class="balatro-only">
-            <summary>What mods are recommended?</summary>
-
-            <p><a target="_blank" rel="noopener noreferrer" href="https://github.com/Steamodded/smods/wiki/">Steamodded</a> is required for most mods. You can follow the <a target="_blank" rel="noopener noreferrer" href="https://github.com/Steamodded/smods/wiki/Installing-Steamodded-windows#step-3-installing-steamodded">Steamodded install guide</a> from step 3 here to install Steamodded. Make sure to replace any mentions of <code>%AppData%/Balatro</code> with <code class="ios-only">game/Mods</code><code class="android-only">ASET/Mods</code>.</p>
-            <p><a target="_blank" rel="noopener noreferrer" href="https://github.com/eramdam/sticky-fingers">Sticky Fingers</a> or <a target="_blank" rel="noopener noreferrer" href="https://thunderstore.io/c/balatro/p/jfmmm/MobileLikeDragging/">MobileLikeDragging</a> to control the game more like the native mobile apps.</p>
-            <p><a target="_blank" rel="noopener noreferrer" href="https://github.com/WilsontheWolf/MobilePatches/archive/refs/heads/master.zip">MobilePatcher</a> is a mod that changes a few things in balatro to work better on mobile devices. Each patch is does is in a different file and can be deleted if you do not want it. <strong>If when you launch the game, it is mostly covered in black (usually on google pixel devices) this is required!</strong></p>
-        </details>
-    </div>
-
-    <footer>
-        <p>Made with ♥ by <a target="_blank" href="https://github.com/WilsontheWolf">WilsontheWolf</a> • <a target="_blank" href="https://github.com/WilsontheWolf/Lovely-mobile-maker">Source Code</a></p>
-        <p>Special thanks to <a target="_blank" href="https://github.com/ethangreen-dev">ethangreen-dev</a> and <a target="_blank" href="https://github.com/Lauriethefish/ModsBeforeFriday">ModsBeforeFriday</a> for without them, this project wouldn't be possible.</p>
+        <footer>
+            <p>Made with ♥ by <a target="_blank" href="https://github.com/WilsontheWolf">WilsontheWolf</a> • <a target="_blank" href="https://github.com/WilsontheWolf/Lovely-mobile-maker">Source Code</a></p>
+            <p>Special thanks to <a target="_blank" href="https://github.com/ethangreen-dev">ethangreen-dev</a> and <a target="_blank" href="https://github.com/Lauriethefish/ModsBeforeFriday">ModsBeforeFriday</a> for without them, this project wouldn't be possible.</p>
+            <p>For help, see the <a target="_blank" href="/faq">Frequently Asked Questions</a>
         </footer>
-</body>
+    </body>
 
 </html>

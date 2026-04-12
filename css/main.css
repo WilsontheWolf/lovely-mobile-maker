@@ -31,7 +31,7 @@ pre {
     border: 2px solid red;
 }
 
-.step {
+.step, .faq {
     border: dashed;
     border-radius: 1em;
     background-color: #0000007F;
@@ -45,7 +45,8 @@ pre {
     display: none;
 }
 
-.step > :first-child { /* Heading */
+.step > :first-child,
+.faq > :first-child { /* Heading */
     margin-top: 0;
     display: initial;
 }
@@ -254,4 +255,25 @@ footer {
 }
 #step6 {
     --step-colour: lawngreen;
+}
+
+/* FAQ Header Links */
+a.header {
+    color: inherit;
+    text-decoration: none;
+}
+
+a.header:hover {
+    text-decoration: underline;
+}
+
+.faq:target {
+    border-color: #e5b84e;
+}
+.faq:target > :first-child {
+    color: #e5b84e;
+}
+
+.faq img {
+    margin-top: 1em;
 }

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>Lovely Mobile Maker FAQ</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href='css/main.css'>
+</head>
+
+<body>
+    <h1>Lovely Mobile Maker FAQ</h1>
+
+    <h2 id="toc">Table of Contents</h2>
+    <ul>
+        <li>
+            <a href="#app">LMM Specific Information</a>
+            <ul>
+                <li><a href="#install">How do I install the app?</a></li>
+                <li><a href="#install-mods">How do I install mods?</a></li>
+                <li><a href="#update-lovely">How do I update lovely?</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="#balatro">Balatro Specifc Information</a>
+            <ul>
+                <li><a href="#recommended">What mods are recommended?</a></li>
+                <li><a href="#crt-fix">There is a big black oval on my screen.</a></li>
+                <li><a href="#crash">How do I fix this crash when I use X Mod?</a></li>
+            </ul>
+        </li>
+    </ul>
+
+
+    <h2 id="app">LMM Specifc Information</h2>
+    <div id="install" class="faq">
+        <h3><a href="#install" class="header">How do I install the app?</a></h3>
+        <p>After running through the steps on the <a href="/">main page</a>, you will get the app as a file. The following tells you how to install the app on your machine:</p>
+        <details name="install">
+            <summary>Android</summary>
+
+            <p>If you did the process on your device, you should be able to open the download to install it.</p>
+            <p>If you did it on your PC you may either</p>
+            <ul>
+                <li>Copy the file to your device and install it using it&#39;s file manager.</li>
+                <li>If your device is in developer mode, install it using adb.</li>
+            </ul>
+            <p><b>Warning!</b> Google is planning on making this much more difficult if not impossible. For more information, please see <a target="_blank" rel="noopener" href="https://keepandroidopen.org/">keepandroidopen.org</a>.</p>
+        </details>
+
+        <details name="install">
+            <summary>iOS</summary>
+
+            <p>It is a bit tricky to sideload apps on iOS. Below are a few different methods:</p>
+            <ul>
+                <li>If your device supports it, <a target="_blank" rel="noopener" href="https://github.com/opa334/TrollStore">TrollStore</a> is recommeneded. It allows infinite app installations without any expiry. You can see the supported device versions, and how to install it <a target="_blank" rel="noopener" href="https://ios.cfw.guide/installing-trollstore/">on ios.cfw.guide</a>.</li>
+                <li>If not you can use a computer to install the app. You can follow the <a target="_blank" rel="noopener" href="https://ios.cfw.guide/sideloading-apps/">instructions on ios.cfw.guide</a>.</li>
+                <!--
+                    Note this doesn't work right as of now, see: https://github.com/SideStore/SideStore/issues/1206
+                    <li>If you often find yourself without a computer you can setup <a target="_blank" rel="noopener" href="https://sidestore.io/">SideStore</a> which after inital setup can resign apps without a computer.</li>
+                -->
+            </ul>
+        </details>
+    </div>
+
+    <div id="install-mods" class="faq">
+        <h3><a href="#install-mods" class="header">How do I install mods?</a></h3>
+
+        <p>First you must acess the mod folder. Below is how to do so on each platform:</p>
+        <details name="install-mods">
+            <summary>Android</summary>
+            <p>Unfortunately, most android file managers are quite bad for this purpose. As such I recommend using <a target="_blank" rel="noopener" href="https://github.com/zhanghai/MaterialFiles">Material Files</a> (It can be install on <a target="_blank" rel="noopener" href="https://f-droid.org/packages/me.zhanghai.android.files">F-Droid</a> and <a target="_blank" rel="noopener" href="https://play.google.com/store/apps/details?id=me.zhanghai.android.files">Google Play</a>).</p>
+            <p>After installing Material Files, you can then open the hamburger menu on the top left &gt; Add Storage... &gt; External Storage &gt; the hamburger menu on the top left &gt; The name of the app &gt; Use this folder &gt; allow. </p>
+            <p>This will add a new folder to the sidebar with your game saves. Lovely mods will always be in ASET &gt; Mods and game saves will either be in ASET or a folder of the game name (it depends on the game).</p>
+        </details>
+        <details name="install-mods">
+            <summary>iOS</summary>
+            <p>Once installed, and the app has been run once, there will be a new folder under <code>On My iPhone/iPad</code> named after the app. Lovely mods will be put in here under game > Mods.</p>
+        </details>
+        <p>With this path, you may install mods like normal in here. For Balatro you can follow the <a target="_blank" rel="noopener" href="https://github.com/Steamodded/smods/wiki/Installing-Steamodded-mobile">Steamodded install guide</a> to install Steamodded.</span></p>
+    </div>
+
+    <div id="update-lovely" class="faq">
+        <h3><a href="#update-lovely" class="header">How do I update lovely?</a></h3>
+        <p>With LMM, lovely is built into the app. To update the app, you will have to go through the process of making the app, and installing it again. If you don't uninstall the old app, and use the same bundle ID, the app will be updated without losing you saves/mods.</p>
+    </div>
+
+    <h2 id="balatro">Balatro Specifc Information</h2>
+    <div id="recommended" class="faq">
+        <h3><a href="#recommended" class="header">What mods are recommended?</a></h3>
+        <p><a target="_blank" rel="noopener" href="https://github.com/Steamodded/smods/wiki/">Steamodded</a> is required for most mods. You can follow the <a target="_blank" rel="noopener" href="https://github.com/Steamodded/smods/wiki/Installing-Steamodded-mobile">Steamodded install guide</a> to install Steamodded.</p>
+        <p><a target="_blank" rel="noopener" href="https://github.com/HuyTheKiller/SilkTouch">Silk Touch</a> or <a target="_blank" rel="noopener" href="https://github.com/eramdam/sticky-fingers">Sticky Fingers</a> to control the game more like the native mobile apps.</p>
+        <p><a target="_blank" rel="noopener" href="https://github.com/WilsontheWolf/MobilePatches/archive/refs/heads/master.zip">MobilePatches</a> is a mod that changes a few things in balatro to work better on mobile devices. Each patch is does is in a different file and can be deleted if you do not want it.
+        </p>Steamodded v1.0.0~BETA-1610a (not yet in a release) has the MobilePatches changes built in, and as such, means MobilePatches is not nessicary when a compatible steamodded is present. <b>If you not installing steamodded, or using an older version, then you should still install MobilePatches.</b></p>
+    </div>
+    <div id="crt-fix" class="faq">
+        <h3><a href="#crt-fix" class="header">There is a big black oval on my screen.</a></h3>
+        <img alt="An image of the Balatro title screen with a big black oval in the way" src="/img/crt.png">
+        <p>Although, that's not really a question, this is an issue caused by the CRT shader that effects some devices (usually google pixels). To fix this, you need to either install <a target="_blank" rel="noopener" href="https://github.com/WilsontheWolf/MobilePatches/archive/refs/heads/master.zip">MobilePatches</a> or <a target="_blank" rel="noopener" href="https://github.com/Steamodded/smods/wiki/">Steamodded</a> v1.0.0~BETA-1610a or newer (not yet in a release).</p>
+    </div>
+    <div id="crash" class="faq">
+        <h3><a href="#crash" class="header">How do I fix a crash when I use X Mod?</a></h3>
+        <p>Once you have the app installed and you start using mods, crashes aren't related to LMM anymore. If you are getting crashes, you should ask in the <a target="_blank" rel="noopener" href="https://discord.gg/7Mq8ReDeRX">Steamodded Discord</a> for help. Please be sure to include the error message, as it contains useful information for debugging crashes.</p>
+    </div>
+</body>
