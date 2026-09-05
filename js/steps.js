@@ -199,10 +199,10 @@ class DownloadStep extends Step {
 	    const type = sharedState.platform === "ios" ? "ipaData" : "apkData";
 	    if (!sharedState[type]) {
 		this.updateStatus("Downloading base app...");
-		const res = await fetch("/base" + sharedState.platformValues.ext)
+		const res = await fetch("/" + this.basename + sharedState.platformValues.ext)
 		    .then(async r => {
 			if(r.ok) return new Uint8Array(await r.arrayBuffer());
-			throw new Error("Failed to fetch base" + sharedState.platformValues.ext +": " + r.status + ": " + r.statusText)
+			throw new Error("Failed to fetch " + this.basename + sharedState.platformValues.ext +": " + r.status + ": " + r.statusText)
 		    });
 		sharedState[type] = res
 	    }
@@ -228,6 +228,11 @@ class DownloadStep extends Step {
 	    this.status.appendChild(document.createElement("br"));
 	    this.status.appendChild(button);
 	}
+    }
+
+    get basename() {
+	const params = new URLSearchParams(window.location.search);
+	return params.get('baseOverride') || "base";
     }
 }
 
@@ -299,7 +304,7 @@ class MetaStep extends Step {
 
     async doneButton() {
 	if (!sharedState.apk) // It's been consumed
-	    await this.prepareAPK();
+	await this.prepareAPK();
 	this.updateStatus("");
 	if (!this.bundle.checkValidity()) return this.updateStatus("Cannot continue, invalid bundle id");
 	if (!(await this.checkIcon())) return this.updateStatus("Cannot continue, invalid icon");
