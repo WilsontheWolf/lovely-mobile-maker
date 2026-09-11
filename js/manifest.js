@@ -1,13 +1,22 @@
 function modifyManifest(xml, newName, newBundle) {
+	let newOrientation = "6"
     const root = xml.documentElement;
+	const app = root.querySelector("application");
+	const activity = app.querySelector("activity");
     let changed = false;
     if (root.tagName !== "manifest") throw new Error("Non-manifest XML document passed");
+	if (newOrientation) {
+		const oldOrientation = activity.getAttribute("android:screenOrientation");
+		if (newOrientation !== oldOrientation) {
+			changed = true;
+			activity.setAttribute("android:screenOrientation", newOrientation);
+		}
+	}
+
     if (newName) {
-	const app = root.querySelector("application");
 	const old = app.getAttribute("android:label");
 	if (newName !== old) {
 	    app.setAttribute("android:label", newName) 
-	    const activity = app.querySelector("activity");
 	    activity.setAttribute("android:label", newName);
 	    changed = true;
 	}
